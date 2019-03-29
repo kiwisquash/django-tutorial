@@ -1,10 +1,14 @@
+import datetime as dt
 from django.db import models
+from django.utils import timezone
 
 class Question(models.Model):
     question_text = models.CharField(max_length = 200)
     pub_date = models.DateTimeField()
 
-    # Add a __str__ method for sanity
+    # Returns True if the publication date is less than a day away from now 
+    def was_published_recently(self):
+        return self.pub_date >= timezone.now() - dt.timedelta(days = 1) 
 
     def __str__(self):
         return self.question_text
