@@ -7,8 +7,7 @@ This is me following the ["Writing your first Django app"](https://docs.djangopr
 For the sake of learning, I am purposefully avoiding the usage of the django.shortcuts module.
 
 - This means that I am not using commands like `get_object_or_404` or `render`.
-- The current plan is to complete the tutorial, then create a separate branche that make use of shortcuts. 
-I will also create a separate branch for generic views.
+- There are separate branches that do use shortcuts and generic views.
 
 Some other minor deviations include
 
