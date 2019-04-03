@@ -1,6 +1,17 @@
 <h1>{{ question.question_text }}</h1>
-<ul>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action = "{% url 'polls:vote' question.id %}" method = "post">
+<!-- The action attribute tells where the data is sent to. In this case, it's "/polls/{question.id}/vote/". -->
+<!-- method "post" is a secure way of sending data to the server. -->
+{% csrf_token %}
+<!-- The csrf_token is for preventing cross-site request forgeries. -->
+<!-- Always include for post forms targetting internal URL. -->
 {% for choice in question.choice_set.all %}
-	<li>{{ choice.choice_text }}</li>
+<input type = "radio" name = "choice" id = "choice{{ forloop.counter }}" value = "{{ choice.id }}">
+<label for = "ted choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
+<!-- The label tag allows users to click on the text instead of only on the radio button -->
 {% endfor %}
-</ul>
+<input type = "submit" value = "Voting is important">
+</form>
