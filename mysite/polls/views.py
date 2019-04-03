@@ -1,5 +1,5 @@
-from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.urls import reverse
 
@@ -15,10 +15,7 @@ def index(request):
     return render(request, template_dir, context)
 
 def detail(request, question_id):
-    try:
-        question = Question.objects.get(pk=question_id)
-    except Question.DoesNotExist:
-        raise Http404("Question does not exist.")
+    question = get_object_or_404(Question, pk=question_id)
     template_dir = 'polls/detail.html'
     context = {
         'question': question,
@@ -26,10 +23,7 @@ def detail(request, question_id):
     return render(request, template_dir, context)
 
 def results(request, question_id):
-    try:
-        question = Question.objects.get(pk=question_id)
-    except Question.DoesNotExist:
-        raise Http404("Question does not exist.")
+    question = get_object_or_404(Question, pk=question_id)
     template_dir = 'polls/results.html'
     context = {
         'question': question,
@@ -37,10 +31,7 @@ def results(request, question_id):
     return render(request, template_dir, context)
 
 def vote(request, question_id):
-    try:
-        question = Question.objects.get(pk=question_id)
-    except Question.DoesNotExist:
-        raise Http404("Question does not exist.")
+    question = get_object_or_404(Question, pk=question_id)
 
     try:
         selected_choice = question.choice_set.get(pk = request.POST['choice'])
