@@ -1,4 +1,5 @@
 from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.shortcuts import render
 from django.template import loader
 from django.urls import reverse
 
@@ -7,33 +8,33 @@ from .models import Question, Choice
 def index(request):
     latest_questions = Question.objects.order_by('-pub_date')[:5]
     # latest_questions = []  
-    template = loader.get_template('polls/index.html')
+    template_dir = 'polls/index.html'
     context = {
         'latest_questions': latest_questions,
     }
-    return HttpResponse(template.render(context, request))
+    return render(request, template_dir, context)
 
 def detail(request, question_id):
     try:
         question = Question.objects.get(pk=question_id)
     except Question.DoesNotExist:
         raise Http404("Question does not exist.")
-    template = loader.get_template('polls/detail.html')
+    template_dir = 'polls/detail.html'
     context = {
         'question': question,
     }
-    return HttpResponse(template.render(context, request))
+    return render(request, template_dir, context)
 
 def results(request, question_id):
     try:
         question = Question.objects.get(pk=question_id)
     except Question.DoesNotExist:
         raise Http404("Question does not exist.")
-    template = loader.get_template('polls/results.html')
+    template_dir = 'polls/results.html'
     context = {
         'question': question,
     }
-    return HttpResponse(template.render(context, request))
+    return render(request, template_dir, context)
 
 def vote(request, question_id):
     try:
@@ -44,12 +45,12 @@ def vote(request, question_id):
     try:
         selected_choice = question.choice_set.get(pk = request.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
-        template = loader.get_template('polls/detail.html')
+        template_dir = 'polls/detail.html'
         context = {
             'question': question,
             'error_message': "You did not select a choice.",
         }
-        return HttpResponse(template.render(context, request))
+        return render(request, template_dir, context)
     else:
         selected_choice.votes += 1
         selected_choice.save()
