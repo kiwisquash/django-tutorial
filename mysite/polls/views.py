@@ -1,7 +1,8 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template import loader
+from django.urls import reverse
 
-from .models import Question
+from .models import Question, Choice
 
 def index(request):
     latest_questions = Question.objects.order_by('-pub_date')[:5]
@@ -24,10 +25,32 @@ def detail(request, question_id):
     return HttpResponse(template.render(context, request))
 
 def results(request, question_id):
-    response = f"You're looking at the results of question {question_id}."
-    return HttpResponse(response)
+    try:
+        question = Question.objects.get(pk=question_id)
+    except Question.DoesNotExist:
+        raise Http404("Question does not exist.")
+    template = loader.get_template('polls/results.html')
+    context = {
+        'question': question,
+    }
+    return HttpResponse(template.render(context, request))
 
 def vote(request, question_id):
-    response = f"You're voting on question {question_id}."
-    return HttpResponse(response)
+    try:
+        question = Question.objects.get(pk=question_id)
+    except Question.DoesNotExist:
+        raise Http404("Question does not exist.")
 
+    try:
+        selected_choice = question.choice_set.get(pk = request.POST['choice'])
+    except (KeyError, Choice.DoesNotExist):
+        template = loader.get_template('polls/detail.html')
+        context = {
+            'question': question,
+            'error_message': "You did not select a choice.",
+        }
+        return HttpResponse(template.render(context, request))
+    else:
+        selected_choice.votes += 1
+        selected_choice.save()
+        return HttpResponseRedirect(reverse('polls:results', args = (question.id,)))
