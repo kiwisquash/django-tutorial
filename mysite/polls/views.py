@@ -5,30 +5,21 @@ from django.urls import reverse
 
 from .models import Question, Choice
 
-def index(request):
-    latest_questions = Question.objects.order_by('-pub_date')[:5]
-    # latest_questions = []  
-    template_dir = 'polls/index.html'
-    context = {
-        'latest_questions': latest_questions,
-    }
-    return render(request, template_dir, context)
+class IndexView(generic.ListView):
+    template_name = 'polls/index.html'
+    context_object_name = 'latest_questions'
 
-def detail(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    template_dir = 'polls/detail.html'
-    context = {
-        'question': question,
-    }
-    return render(request, template_dir, context)
+    def get_queryset(self):
+        '''Return the lastest 5 questions.'''
+        return Question.objects.order_by('-pub_date')[:5]
 
-def results(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    template_dir = 'polls/results.html'
-    context = {
-        'question': question,
-    }
-    return render(request, template_dir, context)
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = 'polls/detail.html' 
+
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'polls/results.html' 
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
