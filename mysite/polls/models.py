@@ -8,7 +8,8 @@ class Question(models.Model):
 
     # Returns True if the publication date is less than a day away from now 
     def was_published_recently(self):
-        return self.pub_date >= timezone.now() - dt.timedelta(days = 1) 
+        now = timezone.now()
+        return now - dt.timedelta(days = 1) <= self.pub_date <= now
 
     def __str__(self):
         return self.question_text
