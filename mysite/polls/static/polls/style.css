@@ -1,0 +1,11 @@
+body {
+	background: url("images/cool_image.jpg");
+}
+
+li {
+	color: green;
+}
+
+a:hover {
+	color: yellow;
+}
