@@ -14,7 +14,43 @@ def create_question(question_text, days):
     time = timezone.now() + dt.timedelta(days=days)
     return Question.objects.create(question_text = question_text, pub_date=time)
 
+class QuestionModelTests(TestCase):
+
+    def test_was_published_recently_with_future_question(self):
+        '''
+        was_published_recently() returns False for
+        questions whose pub_date is in the future.
+        '''
+
+        time = timezone.now() + dt.timedelta(days=20)
+        future_q = Question(pub_date=time)
+
+        self.assertIs(future_q.was_published_recently(), False)
+
+    def test_was_published_recently_with_old_question(self):
+        '''
+        was_published_recently() returns False for
+        questions whose pub_date is older than 1 day.
+        '''
+
+        time = timezone.now() - dt.timedelta(days=1,seconds=1)
+        old_q = Question(pub_date=time)
+
+        self.assertIs(old_q.was_published_recently(), False)
+        
+    def test_was_published_recently_with_recent_question(self):
+        '''
+        was_published_recently() returns True for
+        questions whose pub_date is within the last 1 day.
+        '''
+
+        time = timezone.now() - dt.timedelta(hours=23,minutes=59,seconds=59)
+        recent_q = Question(pub_date=time)
+
+        self.assertIs(recent_q.was_published_recently(), True)
+
 class QuestionIndexViewTests(TestCase):
+
     def test_no_questions(self):
         '''
         If no questions exist, an appropriate message is displayed.
@@ -60,39 +96,24 @@ class QuestionIndexViewTests(TestCase):
         response = self.client.get(reverse('polls:index'))
         self.assertQuerysetEqual(response.context['latest_questions'], ['<Question: Past Q 1.>', '<Question: Past Q 2.>'])
 
+class QuestionDetailViewTests(TestCase):
 
-class QuestionModelTests(TestCase):
-
-
-    def test_was_published_recently_with_future_question(self):
+    def test_future_question(self):
         '''
-        was_published_recently() returns False for
-        questions whose pub_date is in the future.
+        Detail view of a question with a future pub_date should return a 404.
         '''
+        future_q = create_question(question_text="Future Q.",days = 5)
+        url = reverse('polls:detail',args=(future_q.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
 
-        time = timezone.now() + dt.timedelta(days=20)
-        future_q = Question(pub_date=time)
-
-        self.assertIs(future_q.was_published_recently(), False)
-
-    def test_was_published_recently_with_old_question(self):
+    def test_past_question(self):
         '''
-        was_published_recently() returns False for
-        questions whose pub_date is older than 1 day.
+        Detail view of a question with a past pub_date should return a detail page containing the
+        question text.
         '''
+        past_q = create_question(question_text="Past Q.",days = -5)
+        url = reverse('polls:detail',args=(past_q.id,))
+        response = self.client.get(url)
+        self.assertContains(response, past_q.question_text)
 
-        time = timezone.now() - dt.timedelta(days=1,seconds=1)
-        old_q = Question(pub_date=time)
-
-        self.assertIs(old_q.was_published_recently(), False)
-        
-    def test_was_published_recently_with_recent_question(self):
-        '''
-        was_published_recently() returns True for
-        questions whose pub_date is within the last 1 day.
-        '''
-
-        time = timezone.now() - dt.timedelta(hours=23,minutes=59,seconds=59)
-        recent_q = Question(pub_date=time)
-
-        self.assertIs(recent_q.was_published_recently(), True)
