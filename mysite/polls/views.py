@@ -16,7 +16,7 @@ def index(request):
 
 def detail(request, question_id):
     try:
-        question = Question.objects.get(pk=question_id)
+        question = Question.objects.filter(pub_date__lte=timezone.now()).get(pk=question_id)
     except Question.DoesNotExist:
         raise Http404("Question does not exist.")
     template = loader.get_template('polls/detail.html')
